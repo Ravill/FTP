@@ -75,9 +75,6 @@ def sendfile(file=''):
 	f.close()
 	p.close
 	recieve()
-	
-	
-	
 
 def listar():
 	newip, newport = pasv()
@@ -214,11 +211,27 @@ while True:
 				break
 	if opc == '4':
 		while True:
-			print ('Hola')
-			break
+			os.system('cls' if os.name == 'nt' else 'clear')
+			print ('File type')
+			print ('1 - ASCII')
+			print ('2 - Image')
+			print ('3 - Return')
+			opc2 = input('Seleccione una opcion: ')
+			if opc2 == '1':
+				break
+			if opc2 == '2':
+				break
+			if opc2 == '3':
+				break
+				
 	if opc == '5':
-		action('SITE CHMOD '+input_var + ' ' + pof)
+		os.system('cls' if os.name == 'nt' else 'clear')
+		file=input('File name: ')
+		perm=input('Write permissions in hexadecimal, Example (742) :')
+		action('SITE CHMOD '+perm + ' ' + file)
+		print('the permissions of '+file+' has been updated to '+perm)
+		print(input('\nHit Return'))
 	if opc == '6':
 		break
 
-s.close                     # Close the socket when done
+s.close                  
