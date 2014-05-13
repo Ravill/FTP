@@ -2,7 +2,7 @@ import socket
 import sys
 import os
 import time
-
+from time import sleep
 from os import walk
 
 s = socket.socket()
@@ -12,6 +12,7 @@ def send(mes=''):
 
 def recieve():
 	rec = s.recv(1024)
+	return (rec)
 	    
 def action(mes=''):
 	send(mes)
@@ -41,6 +42,41 @@ def pasv():
 		return (newip,newport)
 		break
 		
+def sendfile(file=''):
+	newip, newport = pasv()
+	p = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	p.connect((newip, newport))
+	send('STOR '+file)
+	f = open(file, 'rb')
+	size = os.stat(file)[6]
+	opened = True
+	pos = 0
+	buff = 1024
+	packs = size/1024
+	timeb = 100/packs
+	i=0
+	while opened:
+		i=i+timeb
+		if i>100:
+			i=100
+		time.sleep(.05)
+		sys.stdout.write("\r%d%%" %i)
+		sys.stdout.flush()
+		f.seek(pos)
+		pos += buff
+		if pos >= size:
+			piece = f.read(-1)
+			opened = False
+		else:
+			piece = f.read(buff) 
+		p.send(piece)
+		
+		f.seek(pos)
+	f.close()
+	p.close
+	recieve()
+	
+	
 	
 
 def listar():
@@ -52,7 +88,7 @@ def listar():
 	rec = p.recv(1024)
 	rec = rec.decode()
 	rec.split('\r\n')
-	print (rec)
+	print(rec)
 	mes = ('ABOR')
 	p.send(bytes(mes + ("\r\n"), "UTF-8"))
 	p.close
@@ -69,7 +105,8 @@ action('USER '+'userftp')
 #passw = input("Enter password: ")
 #action('PASS '+passw)
 action('PASS '+'r3d3sf1s1c@s')
-
+path = ('/home/ec2-user/Redes/')
+buff=1024
 while True:
 	os.system('cls' if os.name == 'nt' else 'clear')
 	print ('1 - Print Local and Remote Directory')
@@ -98,8 +135,7 @@ while True:
 			else:
 				print('"'+directory+'"')
 			listar()
-			print('Local Directory')
-			path = ('/home/ec2-user/')
+			print('\nLocal Directory')
 			local_dir(path)
 			browse_local(path)
 			print(input('Hit Return'))
@@ -120,7 +156,8 @@ while True:
 				print('Change remote directory')
 				rd = input("Enter directory: ")
 				action('CWD '+rd)
-				print(input('Hit Return'))
+				listar()
+				print(input('\nHit Return'))
 			if opc2 == '3':
 				break
 	if opc == '3':
@@ -132,7 +169,47 @@ while True:
 			print ('3 - Return')
 			opc2 = input('Seleccione una opcion: ')
 			if opc2 == '1':
-				print('')
+				os.path = path
+				file = input('File Name: ')
+				mes = ('TYPE A')
+				send(mes)
+				while True:
+					vali = recieve()
+					vali = vali.decode()
+					vali = vali.split("'")
+					vali = vali[0].split(' ')
+					vali = vali[0]
+					if vali == '226':
+						mes = ('ABOR')
+						action(mes)
+						recieve()
+						break
+					else:
+						break
+				action(mes)
+				sendfile(file)
+				print(input('Hit Return'))
+			if opc2 == '2':
+				os.path = path
+				file = input('File Name: ')
+				mes = ('TYPE I')
+				send(mes)
+				
+				while True:
+					vali = recieve()
+					vali = vali.decode()
+					vali = vali.split("'")
+					vali = vali[0].split(' ')
+					vali = vali[0]
+					if vali == '226':
+						mes = ('ABOR')
+						action(mes)
+						recieve()
+						break
+					else:
+						break
+				sendfile(file)
+				print(input('Hit Return'))
 			if opc2 == '3':
 				break
 	if opc == '4':
@@ -143,42 +220,5 @@ while True:
 		action('SITE CHMOD '+input_var + ' ' + pof)
 	if opc == '6':
 		break
-		
-	
-
-listar()
-
-print("Remote Directory")
-mes = ('PWD')
-action(mes)
-
-print('Change remote directory')
-mes = ('CWD Tecu')
-action(mes)
-
-print("Remote Directory")
-mes = ('PWD')
-action(mes)
-
-listar()
-
-print("Local Directory")
-path = ('/home/ec2-user/')
-browse_local(path)
-
-print('Change local directory')
-path = (path+input("Directorio: ")+'/')
-browse_local(path)
-
-mes = ('TYPE I')
-action(mes)
-
-mes = ('TYPE A')
-action(mes)
-
-mes = ('MODE S')
-action(mes)
-
-
 
 s.close                     # Close the socket when done
