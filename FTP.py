@@ -76,6 +76,21 @@ def sendfile(file=''):
 	p.close
 	recieve()
 
+def recievefile(file=''):
+	newip, newport = pasv()
+	p = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	p.connect((newip, newport))
+	action('RETR '+file)
+	target = open (file, 'w')
+	aux='A'
+	while aux != "":
+		aux = p.recv(1024)
+		aux = aux.decode()
+		target.write(aux)
+	target.close()
+	p.close
+
+
 def listar():
 	newip, newport = pasv()
 	p = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -102,7 +117,7 @@ action('USER '+'userftp')
 #passw = input("Enter password: ")
 #action('PASS '+passw)
 action('PASS '+'r3d3sf1s1c@s')
-path = ('/home/ec2-user/Redes/')
+path = ('/home/ec2-user/')
 buff=1024
 while True:
 	os.system('cls' if os.name == 'nt' else 'clear')
@@ -145,14 +160,20 @@ while True:
 			print ('3 - Regresar')
 			opc2 = input('Seleccione una opcion: ')
 			if opc2 == '1':
-				print('Change local directory')
-				path = (path+input("Directorio: ")+'/')
+				path2 = input('Change local directory (write home to return to home directory): ')
+				if path2 == 'home':
+					path = '/home/'
+				else: 
+					path = (path+input("Directorio: ")+'/')
 				browse_local(path)
 				print(input('Hit Return'))
 			if opc2 == '2':
-				print('Change remote directory')
+				print('Change remote directory (write up to go one directory up)')
 				rd = input("Enter directory: ")
-				action('CWD '+rd)
+				if rd == 'up':
+					action('CDUP')
+				else:
+					action('CWD '+rd)
 				listar()
 				print(input('\nHit Return'))
 			if opc2 == '3':
@@ -218,9 +239,21 @@ while True:
 			print ('3 - Return')
 			opc2 = input('Seleccione una opcion: ')
 			if opc2 == '1':
-				break
+				os.path = path
+				file = input('File Name: ')
+				mes = ('TYPE A')
+				action(mes)
+				recievefile(file)
+				print(input('Hit Return'))
+				
 			if opc2 == '2':
-				break
+				os.path = path
+				file = input('File Name: ')
+				mes = ('TYPE I')
+				action(mes)
+				recievefile(file)
+				print(input('Hit Return'))
+				
 			if opc2 == '3':
 				break
 				
