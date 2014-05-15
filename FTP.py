@@ -9,7 +9,6 @@ s = socket.socket()
 
 def send(mes=''):
 	s.send(bytes(mes + ("\r\n"), "UTF-8"))
-
 def recieve():
 	rec = s.recv(1024)
 	return (rec)
@@ -81,13 +80,17 @@ def recievefile(file=''):
 	p = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	p.connect((newip, newport))
 	action('RETR '+file)
-	target = open (file, 'w')
-	aux='A'
+	newfile = open (file, 'w')
+	msg=''
+	aux=':)'
 	while aux != "":
+		time.sleep(.05)
+		sys.stdout.write("\r" "wait")
+		sys.stdout.flush()
 		aux = p.recv(1024)
-		aux = aux.decode()
-		target.write(aux)
-	target.close()
+		aux=aux.decode(errors='ignore')
+		newfile.write(aux)
+	newfile.close()
 	p.close
 
 
@@ -105,6 +108,7 @@ def listar():
 	p.send(bytes(mes + ("\r\n"), "UTF-8"))
 	p.close
 	recieve()
+
 
 #s.connect((input("Enter FTP Address: "), 21))
 s.connect(("192.100.230.21", 21))
@@ -164,7 +168,7 @@ while True:
 				if path2 == 'home':
 					path = '/home/'
 				else: 
-					path = (path+input("Directorio: ")+'/')
+					path = (path+path2+'/')
 				browse_local(path)
 				print(input('Hit Return'))
 			if opc2 == '2':
@@ -242,7 +246,20 @@ while True:
 				os.path = path
 				file = input('File Name: ')
 				mes = ('TYPE A')
-				action(mes)
+				send(mes)
+				while True:
+					vali = recieve()
+					vali = vali.decode()
+					vali = vali.split("'")
+					vali = vali[0].split(' ')
+					vali = vali[0]
+					if vali == '226':
+						mes = ('ABOR')
+						action(mes)
+						recieve()
+						break
+					else:
+						break
 				recievefile(file)
 				print(input('Hit Return'))
 				
@@ -250,7 +267,20 @@ while True:
 				os.path = path
 				file = input('File Name: ')
 				mes = ('TYPE I')
-				action(mes)
+				send(mes)
+				while True:
+					vali = recieve()
+					vali = vali.decode()
+					vali = vali.split("'")
+					vali = vali[0].split(' ')
+					vali = vali[0]
+					if vali == '226':
+						mes = ('ABOR')
+						action(mes)
+						recieve()
+						break
+					else:
+						break
 				recievefile(file)
 				print(input('Hit Return'))
 				
@@ -265,6 +295,9 @@ while True:
 		print('the permissions of '+file+' has been updated to '+perm)
 		print(input('\nHit Return'))
 	if opc == '6':
+		os.system('cls' if os.name == 'nt' else 'clear')
+		print('FTP client by Ravil')
+		print(input('\nHit return to exit'))
 		break
 
 s.close                  
