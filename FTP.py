@@ -110,8 +110,8 @@ def listar():
 	recieve()
 
 
-#s.connect((input("Enter FTP Address: "), 21))
-s.connect(("192.100.230.21", 21))
+s.connect((input("Enter FTP Address: "), 21))
+#s.connect(("192.100.230.21", 21))
 s.recv(1024)		
 		
 #usern = input("Enter user: ")
@@ -121,7 +121,7 @@ action('USER '+'userftp')
 #passw = input("Enter password: ")
 #action('PASS '+passw)
 action('PASS '+'r3d3sf1s1c@s')
-path = ('/home/ec2-user/')
+path = ('/')
 buff=1024
 while True:
 	os.system('cls' if os.name == 'nt' else 'clear')
